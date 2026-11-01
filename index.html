@@ -653,11 +653,11 @@ button:focus:not(:focus-visible){outline:none}
 body.nvh #nav{transform:translate3d(-50%,60px,0)!important;pointer-events:none}
 .fab{transition:bottom .4s cubic-bezier(.4,0,.2,1)}body.nvh .fab:not(.low){bottom:calc(24px + var(--sf))}
 @media(prefers-reduced-motion:reduce){#nav,.fab{transition:none}}
-#pce{position:fixed;inset:0;z-index:70;background:rgba(10,10,10,.94);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}#pce.on{opacity:1}
+#pce{position:fixed;inset:0;z-index:70;touch-action:none;-webkit-user-select:none;user-select:none;overscroll-behavior:contain;background:rgba(10,10,10,.94);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .25s;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}#pce.on{opacity:1}
 .pcb{display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px 20px;width:100%;max-width:400px;text-align:center}.pcb h2{margin:0;color:#fff}.pcb p{margin:-8px 0 0;font-size:14px}
 .pcv{position:relative;border-radius:24px;overflow:hidden;background:#000;touch-action:none}.pcv canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
 .pcm{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(18,18,18,.72);border:2px solid #e4ff3a;pointer-events:none}
-.pcs{width:100%;accent-color:#e4ff3a}
+.pcs{width:100%;accent-color:#e4ff3a;touch-action:pan-x}
 </style></head><body><noscript><p style="font:16px/1.5 system-ui;color:#fff;padding:24px">Stack braucht JavaScript. Bitte aktiviere es in deinem Browser.</p></noscript>
 <div id="splash" aria-hidden="true"><div class="sp-lg"><svg width="60" height="82" viewBox="0 0 60 82"><rect class="sb q1" y="70" width="60" height="12" rx="6"/><rect class="sb q2" y="52" width="60" height="12" rx="6"/><rect class="sb q3" y="34" width="60" height="12" rx="6"/><rect class="sy qy" width="60" height="12" rx="6"/></svg><div class="sp-wm"><span class="l" style="--k:0">s</span><span class="l" style="--k:1">t</span><span class="l" style="--k:2">a</span><span class="l" style="--k:3">c</span><span class="l" style="--k:4">k</span><span class="l pt" style="--k:5">.</span></div></div><div class="sp-cl">Stack up.</div></div>
 <script>(function(){var sp=document.getElementById("splash");if(!sp)return;var skip=false;try{skip=/nosplash/.test(location.search)||sessionStorage.getItem("stk_sp")==="1";sessionStorage.setItem("stk_sp","1")}catch(e){}if(skip){sp.remove();return}var done=false;function end(){if(done)return;done=true;sp.classList.add("out");setTimeout(function(){sp.remove()},600)}sp.addEventListener("click",end);setTimeout(end,2600)})();</script>
@@ -1873,7 +1873,7 @@ function openCrop(src,t0){const im=new Image();im.onload=()=>{
  let z=t0?t0.z:1,cx=t0?t0.cx:w/2,cy=t0?t0.cy:h/2;
  const o=document.createElement("div");o.id="pce";
  o.innerHTML=`<div class="pcb"><h2>Foto anpassen</h2><p class="mut">Ziehen zum Verschieben, Zwicken oder Regler zum Zoomen.</p><div class="pcv" style="width:${VS}px;height:${VS}px"><canvas></canvas><i class="pcm"></i></div><input class="pcs" type="range" min="1" max="5" step="0.01" value="${z}" aria-label="Zoom"><div class="row" style="gap:8px;width:100%"><button class="pg" style="flex:1" data-pc="x">Abbrechen</button><button class="pb" style="flex:1" data-pc="ok">Speichern</button></div></div>`;
- document.body.appendChild(o);requestAnimationFrame(()=>o.classList.add("on"));
+ document.body.appendChild(o);document.body.style.overflow="hidden";o.addEventListener("touchmove",e=>{if(!e.target.closest(".pcs"))e.preventDefault()},{passive:false});requestAnimationFrame(()=>o.classList.add("on"));
  const cv=o.querySelector("canvas"),sl=o.querySelector(".pcs"),d=Math.min(2,devicePixelRatio||1);cv.width=cv.height=Math.round(VS*d);
  const clamp=()=>{z=Math.min(5,Math.max(1,z));const hw=VS/2/(smin*z);cx=Math.min(w-hw,Math.max(hw,cx));cy=Math.min(h-hw,Math.max(hw,cy))};
  const draw=()=>{clamp();const sz=VS/(smin*z),g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(im,cx-sz/2,cy-sz/2,sz,sz,0,0,cv.width,cv.height);sl.value=z};
@@ -1887,7 +1887,7 @@ function openCrop(src,t0){const im=new Image();im.onload=()=>{
  ["pointerup","pointercancel","lostpointercapture"].forEach(k=>cv.addEventListener(k,e=>P.delete(e.pointerId)));
  cv.addEventListener("wheel",e=>{e.preventDefault();z*=Math.exp(-e.deltaY*.002);draw()},{passive:false});
  sl.addEventListener("input",()=>{z=+sl.value;draw()});
- const close=()=>{o.classList.remove("on");setTimeout(()=>o.remove(),250)};
+ const close=()=>{document.body.style.overflow="";o.classList.remove("on");setTimeout(()=>o.remove(),250)};
  o.addEventListener("click",e=>{const b=e.target.closest("[data-pc]");if(!b)return;
   if(b.dataset.pc==="x"){close();return}
   try{clamp();const n=256,sz=VS/(smin*z),c=document.createElement("canvas");c.width=c.height=n;c.getContext("2d").drawImage(im,cx-sz/2,cy-sz/2,sz,sz,0,0,n,n);S.pic=c.toDataURL("image/jpeg",.85);S.picO=src;S.picT={z,cx,cy};save();close();R()}catch(x){alert("Das Bild konnte nicht gespeichert werden.")}});
