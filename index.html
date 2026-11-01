@@ -656,7 +656,7 @@ const seed=()=>({rt:[{id:1,name:"Split",days:[
  {id:12,name:"Torso",wd:[3,6],ex:[mk("Pec Deck","Machine",3,6,"arm"),mk("Lat Pulldown","Machine",3,6),mk("Bench Press","Plateloaded",3,6,"arm"),mk("Row","Plateloaded",3,6,"arm"),mk("Lateral Raise","Plateloaded",3,8,"arm"),mk("Enges Rudern","Cable",3,8)]}]}],
  act:1,hist:[],rm:90,tu:2,td:2,rom:{},cur:null});
 let S=null,V={v:"today"},T=null,conn="",down=false,LP=0,E={init:0,gv:0,gp:0,st:0,th:0};
-try{S=JSON.parse(localStorage.getItem("rt3")||"null")}catch(e){}S=S||seed();S.rom=S.rom||{};if(S.viz)S.viz=0;S.ob=S.ob||((S.hist&&S.hist.length)?1:0);S.su=S.su||(S.ob?1:0);S.rm=90;S.tu=2;S.td=3;
+try{S=JSON.parse(localStorage.getItem("rt3")||"null")}catch(e){}const fresh0=!S;S=S||seed();if(fresh0)S.xv=1;else if(!S.xv){S.xv=1;S.xp=Math.round((S.xp||0)/10);(S.hist||[]).forEach(h=>{if(h.xp)h.xp=Math.round(h.xp/10)});if(S.cur&&S.cur.xp)S.cur.xp=Math.round(S.cur.xp/10)};S.rom=S.rom||{};if(S.viz)S.viz=0;S.ob=S.ob||((S.hist&&S.hist.length)?1:0);S.su=S.su||(S.ob?1:0);S.rm=90;S.tu=2;S.td=3;
 const save=()=>{try{const d=new Date().toDateString(),o=localStorage.getItem("rt3");if(o&&localStorage.getItem("rt3_bakd")!==d){localStorage.setItem("rt3_bak",o);localStorage.setItem("rt3_bakd",d)}localStorage.setItem("rt3",JSON.stringify(S))}catch(e){}};
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 try{if("serviceWorker" in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(e){}
@@ -1231,9 +1231,9 @@ function vPre(seg){const tgt=S.rt.find(x=>x.id===V.pr);
   +p.days.map((d,di)=>`<div class="row item" style="cursor:default"><div style="flex:1;min-width:0"><b>${esc(d.n)}</b><div class="mut" style="font-size:13px">${d.ex.map(e=>esc(e[0])).join(" · ")}</div></div><button class="round sm" data-act="prd" data-p="${pi}" data-d="${di}" aria-label="Workout hinzufügen">${I("plus",18)}</button></div>`).join(""))).join("")}
 /* ---------- Community ---------- */
 const WMS=6048e5,MET={x:["XP","XP"],v:["Volumen","kg"],w:["Workouts","×"]};
-const LEAGUES=[["Bronze",0,"#cd8a4b"],["Silber",1500,"#c7ccd6"],["Gold",5000,"#f5c542"],["Platin",12000,"#7fe3d4"],["Diamant",25000,"#8fb4ff"]];
+const LEAGUES=[["Bronze",0,"#cd8a4b"],["Silber",3000,"#c7ccd6"],["Gold",10000,"#f5c542"],["Platin",30000,"#7fe3d4"],["Diamant",75000,"#8fb4ff"]];
 const leagueOf=x=>{let i=0;LEAGUES.forEach((l,k)=>{if(x>=l[1])i=k});const l=LEAGUES[i],n=LEAGUES[i+1]||null;return{n:l[0],c:l[2],next:n,left:n?n[1]-x:0,p:n?(x-l[1])/(n[1]-l[1]):1}};
-const lvOf=xp=>{xp=xp||0;const L=Math.floor(Math.sqrt(xp/100))+1,a=(L-1)*(L-1)*100,b=L*L*100;return{L,p:(xp-a)/(b-a),left:b-xp}};
+const lvOf=xp=>{xp=xp||0;const L=Math.floor(Math.sqrt(xp/300))+1,a=(L-1)*(L-1)*300,b=L*L*300;return{L,p:(xp-a)/(b-a),left:b-xp}};
 const wsOf=k=>{const n=new Date(),t=n.getDay();return new Date(n.getFullYear(),n.getMonth(),n.getDate()-((t+6)%7)+7*k).getTime()};
 const statAt=ws=>{let v=0,w=0,x=0;S.hist.forEach(h=>{if(h.t>=ws&&h.t<ws+WMS){v+=vol(h);w++;x+=h.xp||0}});return{v,w,x}};
 const kf=v=>v>=1000?(Math.round(v/100)/10).toString().replace(".",",")+" t":Math.round(v)+" kg";
@@ -1257,7 +1257,7 @@ function podium(en,m){const t=en.slice(0,3);if(t.length<3)return"";const mx=Math
  return`<div class="pod">${o.map((p,i)=>`<div class="pc ${p.me?"me":""}"><span class="md">${med[rk[i]-1]}</span>${av(p.n,i===1?54:44)}<b>${esc(p.n)}</b><span class="mono pv">${fv(m,p.val)}</span><div class="pe r${rk[i]}" style="height:${28+Math.round(p.val/mx*54)}px"></div></div>`).join("")}</div>`}
 function lbList(en,m,from){const mx=Math.max(1,en[0]?en[0].val:1);return en.map((p,i)=>i<from?"":`<div class="lbr ${p.me?"me":""}"><span class="rk">${i+1}</span>${av(p.n,36)}<div style="flex:1;min-width:0"><b>${esc(p.n)}</b>${p.demo?` <span class="tag">Demo</span>`:""}${p.fresh?"":` <span class="tag">alter Stand</span>`}<div class="bar2"><i style="width:${Math.round(p.val/mx*100)}%"></i></div></div><b class="mono" style="font-size:14px">${p.fresh||p.me?fv(m,p.val):"–"}</b></div>`).join("")}
 function badges(){const all=S.hist.length,tv=S.hist.reduce((a,h)=>a+vol(h),0),sk=streakW(),early=S.hist.some(h=>new Date(h.t).getHours()<8),xp=S.xp||0;
- return[["Erster Schritt","bolt",all>=1,"1 Workout"],["Dranbleiber","timer",sk>=3,"3 Wochen Serie"],["10er-Club","dumb",all>=10,"10 Workouts"],["Tonnen-Held","chart",tv>=10000,"10 t bewegt"],["Frühaufsteher","sensor",early,"Training vor 8 Uhr"],["XP-Jäger","up",xp>=1000,"1000 XP"]]}
+ return[["Erster Schritt","bolt",all>=1,"1 Workout"],["Dranbleiber","timer",sk>=3,"3 Wochen Serie"],["10er-Club","dumb",all>=10,"10 Workouts"],["Tonnen-Held","chart",tv>=10000,"10 t bewegt"],["Frühaufsteher","sensor",early,"Training vor 8 Uhr"],["XP-Jäger","up",xp>=2000,"2000 XP"]]}
 function vCommunity(){const m=V.cmm||"x",tab=V.cm||"f",me=mySnap(),st=statAt(wsOf(0)),lg=leagueOf(S.xp||0),lv=lvOf(S.xp||0),sk=streakW();
  const seg=`<div class="seg" style="margin-top:16px">${[["f","Freunde"],["s","Studio"],["b","Battles"]].map(([k,t])=>`<button class="${tab===k?"on":""}" data-act="cm" data-t="${k}">${t}</button>`).join("")}</div>`;
  const hero_=hero(`<div class="row sp"><h1 style="font-size:30px;margin:0">Community</h1><span class="lg" style="--c:${lg.c}"><i></i>${lg.n}</span></div>
@@ -1511,7 +1511,7 @@ function cdPaint(){const st=$("cdst");if(!st||!T||T.ex.type!=="Cardio")return;co
  const set=(i,v)=>{const e=$(i);if(e)e.textContent=v};set("cdt",fmt(cd.sec));set("cdv",K.km?cdN(cd.spd,1):cd.spd);
  if(K.km){set("cdp",cd.spd>0?(()=>{const m=60/cd.spd;return Math.floor(m)+":"+String(Math.round((m%1)*60)%60).padStart(2,"0")})():"–");set("cdd",cdN(cd.d,2))}else{set("cdp",cdN(cd.spd*.18,1));set("cdd",Math.round(cd.d))}
  const g=$("cdgo");if(g)g.textContent=cd.run?"Pause":cd.sec>0?"Weiter":"Starten";const f=$("cdfin");if(f)f.style.display=cd.sec>=30&&!s.d?"":"none"}
-function cdFinal(s,ex){const cd=s.cd;if(!cd||s.d)return 0;if(cd.run){cd.run=0}const sec=cd.sec;if(sec<30)return 0;const k=cdK(ex),mins=Math.max(1,Math.round(sec/60));s.d=1;s.w=0;s.r=mins;const x=Math.round(sec/60*6);S.xp=(S.xp||0)+x;S.cur.xp=(S.cur.xp||0)+x;s.cdx={sec:Math.round(sec),d:+(+cd.d).toFixed(3),st:Math.round(cd.st),spd:cd.spd,k};return x}
+function cdFinal(s,ex){const cd=s.cd;if(!cd||s.d)return 0;if(cd.run){cd.run=0}const sec=cd.sec;if(sec<30)return 0;const k=cdK(ex),mins=Math.max(1,Math.round(sec/60));s.d=1;s.w=0;s.r=mins;const x=Math.round(sec/60*1.5);S.xp=(S.xp||0)+x;S.cur.xp=(S.cur.xp||0)+x;s.cdx={sec:Math.round(sec),d:+(+cd.d).toFixed(3),st:Math.round(cd.st),spd:cd.spd,k};return x}
 function cdFin(){cdStep();const s=T.ex.sets[T.si],cd=cdGet();if(cd.sec<30){alert("Starte zuerst die Zeit, mindestens eine halbe Minute.");return}const K=CD[cdK(T.ex)],sec=cd.sec,d=cd.d;cdFinal(s,T.ex);save();if(typeof celebrate==="function")celebrate("done",T.ex.n+" geschafft",fmt(sec)+" · "+(K.km?cdN(d,2)+" km":Math.round(d)+" m"));V.rest=0;nextAfter();V.v="workout";R()}
 function vCardio(){const c=S.cur,k=cdK(T.ex),K=CD[k],cd=cdGet(),s=T.ex.sets[T.si],tg=+T.target||15,all=c.ex.every(x=>x.sets.every(q=>q.d));
  return `<div class="wk"><div class="wk-top"><div class="row" style="gap:8px"><button class="wkb" data-act="cancel" aria-label="Beenden">${I("x",20)}</button><button class="wkb" data-act="mini" aria-label="Workout einklappen">${I("down",22)}</button></div><b style="font-size:15px;color:#e8e8ee">${esc(c.name)}</b><button class="wkb" data-act="wl" aria-label="Übungen">${I("dots",22)}</button></div>
@@ -1526,7 +1526,7 @@ function finSet(){T.run=false;if(T.reps>0){const s=S.cur.ex[T.ei].sets[T.si];con
 function lastRepsFor(n,si){for(let i=S.hist.length-1;i>=0;i--){const x=S.hist[i].ex.find(z=>z.n===n&&z.sets.length);if(x)return x.sets[Math.min(si,x.sets.length-1)].r}return 0}
 function xpShow(lines){const t=$("xpt");if(t){t.innerHTML=lines.map((l,i)=>`<div class="${i?"xs":""}">${l}</div>`).join("");t.classList.remove("on");void t.offsetWidth;t.classList.add("on")}const c=$("xpn");if(c)c.textContent=S.xp||0}
 /* XP pro Wiederholung: Grundwert aus dem Gewicht, Wdh. ueber dem Ziel zaehlen 1,5-fach */
-function xpFor(kg,rep,target){const base=10+Math.max(0,+kg||0)*.6,over=target>0&&rep>target;return{n:Math.round(base*(over?1.5:1)),over}}
+function xpFor(kg,rep,target){const base=1+Math.max(0,+kg||0)*.06,over=target>0&&rep>target;return{n:Math.max(1,Math.round(base*(over?1.5:1))),over}}
 function xpRep(q){if(T.ex.sets[T.si]&&T.ex.sets[T.si].wu)return;const r=xpFor(T.kg,T.reps,T.target),n=r.n,lines=["+"+n+" XP"+(T.kg>0?" · "+T.kg+" kg":"")];
  if(r.over)lines.push("ZIEL ÜBERSCHRITTEN · ×1,5");
  S.xp=(S.xp||0)+n;T.xs=(T.xs||0)+n;if(S.cur)S.cur.xp=(S.cur.xp||0)+n;save();xpShow(lines)}
@@ -1841,7 +1841,7 @@ document.addEventListener("click",e=>{const t=e.target.closest("[data-act]");if(
  else if(a==="name"){const n=prompt("Dein Name",S.name||"");if(n===null)return;S.name=n.trim()}
  else if(a==="exp"){exportFile()}
  else if(a==="imp"){const i=document.createElement("input");i.type="file";i.accept=".json,application/json";i.onchange=()=>{const f=i.files[0];if(f)f.text().then(doImport)};i.click();return}
- else if(a==="reset"){if(!confirm("Wirklich alle Daten löschen?"))return;S=seed();V.v="today"}
+ else if(a==="reset"){if(!confirm("Wirklich alle Daten löschen?"))return;S=seed();S.xv=1;V.v="today"}
  save();R()});
 (()=>{const f=document.createElement("input");f.type="file";f.accept="image/*";f.id="picf";f.style.cssText="position:fixed;left:-9999px;opacity:0";document.body.appendChild(f);
  f.addEventListener("change",()=>{const file=f.files&&f.files[0];if(!file)return;const u=URL.createObjectURL(file),im=new Image();
